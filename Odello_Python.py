@@ -47,6 +47,8 @@ class Stone(Object):
 
         change_turn()
         show_Possible()
+        
+        print(WHITE_POSSIBLE_DICT)
 
         if POSSIBLE_COUNT == 0:
             if now_turn == Turn.BLACK:
@@ -61,6 +63,7 @@ class Stone(Object):
 
 Stones = []
 POSSIBLE_COUNT = 0
+WHITE_POSSIBLE_DICT = {}
 
 def change_turn():
     global now_turn
@@ -92,12 +95,13 @@ def create_Stones():
     Stones[3][4].change_state(State.WHITE)
 
 def show_Possible():
-    global now_turn, Stones, POSSIBLE_COUNT
+    global now_turn, Stones, POSSIBLE_COUNT, WHITE_POSSIBLE_DICT
 
     moveX = [1, 1, 1, 0, -1, -1, -1, 0]
     moveY = [1, 0, -1, -1, -1, 0, 1, 1]
 
     POSSIBLE_COUNT = 0
+    WHITE_POSSIBLE_DICT.clear()
 
     for x in range(8):
         for y in range(8):
@@ -134,7 +138,6 @@ def show_Possible():
                                 POSSIBLE_COUNT += 1
 
     else: # WHITE turn
-
         for x in range(8):
             for y in range(8):
 
@@ -145,21 +148,27 @@ def show_Possible():
 
                         if newX >= 0 and newX < 8 and newY >= 0 and newY < 8 and Stones[newX][newY].state == State.BLACK:
                             isOutBounded = False
-
+                            count = 0
                             while Stones[newX][newY].state == State.BLACK:
                                 newX += moveX[step]
                                 newY += moveY[step]
-
+                                count += 1
 
                                 if newX < 0 or newX >= 8 or newY < 0 or newY >= 8:
                                     isOutBounded = True
                                     break
                                 
                             # 찾았을때
-                            if (not isOutBounded) and Stones[newX][newY].state == State.BLANK:
-                                Stones[newX][newY].change_state(State.POSSIBLE)
-                                Stones[newX][newY].setImage('Images/white possible.png')
-                                POSSIBLE_COUNT += 1
+                            if (not isOutBounded) and (Stones[newX][newY].state == State.BLANK or Stones[newX][newY].state == State.POSSIBLE):
+                                if Stones[newX][newY].state == State.BLANK:
+                                    POSSIBLE_COUNT += 1
+                                    Stones[newX][newY].change_state(State.POSSIBLE)
+                                    Stones[newX][newY].setImage('Images/white possible.png')
+                                
+                                if (newX, newY) in WHITE_POSSIBLE_DICT:
+                                    WHITE_POSSIBLE_DICT[(newX, newY)] = WHITE_POSSIBLE_DICT.get((newX, newY)) + count
+                                else:
+                                    WHITE_POSSIBLE_DICT[(newX, newY)] = count
 
 def change_Stones(x, y):
     global Stones
@@ -232,6 +241,7 @@ def count_Stones():
     black_num2.setImage('Images/L{}.png'.format(black_count%10))
     white_num1.setImage('Images/L{}.png'.format(white_count//10))
     white_num2.setImage('Images/L{}.png'.format(white_count%10))
+
 
 
 black_num1 = Object('Images/L0.png')
