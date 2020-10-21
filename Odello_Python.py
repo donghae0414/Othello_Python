@@ -49,7 +49,7 @@ class Stone(Object):
         show_Possible()
         
         auto_White_Pick()
-
+        WHITE_CLICK_POSSIBLE = False
         if POSSIBLE_COUNT == 0:
             if now_turn == Turn.BLACK:
                 showMessage('{0}돌을 둘 수 있는 곳이 없어 {1}돌로 자동으로 턴이 넘어갑니다.'.format(Turn.BLACK.value, Turn.WHITE.value))
@@ -257,7 +257,7 @@ def auto_White_Pick():
             max_target = target
 
     white_timer.target = max_target
-    white_timer.set(1)
+    white_timer.set(0.5)
     white_timer.start()
     print('좌표 : {0}, 바뀌는 흑색돌 : {1}'.format(max_target, WHITE_POSSIBLE_DICT.get(max_target)))
 
@@ -267,7 +267,6 @@ def white_timer_onTimeout(timer):
     global Stones
     s = Stones[timer.target[0]][timer.target[1]]
     s.onMouseAction(40 + 80 * timer.target[1], 40 + 80 * timer.target[0], MouseAction.CLICK)
-
 
 white_timer.onTimeout = lambda timer=white_timer : white_timer_onTimeout(timer)
 
