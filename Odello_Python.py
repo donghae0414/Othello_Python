@@ -32,7 +32,7 @@ class Stone(Object):
     def onMouseAction(self, x, y, action):
         global now_turn, POSSIBLE_COUNT
 
-        if not (self.state == State.POSSIBLE):
+        if (not (self.state == State.POSSIBLE)):
             return
 
         if now_turn == Turn.BLACK:
@@ -48,7 +48,7 @@ class Stone(Object):
         change_turn()
         show_Possible()
         
-        print(WHITE_POSSIBLE_DICT)
+        auto_White_Pick()
 
         if POSSIBLE_COUNT == 0:
             if now_turn == Turn.BLACK:
@@ -57,6 +57,7 @@ class Stone(Object):
                 showMessage('{0}돌을 둘 수 있는 곳이 없어 {1}돌로 자동으로 턴이 넘어갑니다.'.format(Turn.WHITE.value, Turn.BLACK.value))
             change_turn()
             show_Possible()
+            auto_White_Pick()
 
             if POSSIBLE_COUNT == 0:
                 showMessage('게임 종료')
@@ -242,7 +243,33 @@ def count_Stones():
     white_num1.setImage('Images/L{}.png'.format(white_count//10))
     white_num2.setImage('Images/L{}.png'.format(white_count%10))
 
+def auto_White_Pick():
+    global WHITE_POSSIBLE_DICT
+    
+    if len(WHITE_POSSIBLE_DICT.keys()) == 0:
+        return
+    
+    print(WHITE_POSSIBLE_DICT)
+    max_target = list(WHITE_POSSIBLE_DICT.keys())[0]
 
+    for target in WHITE_POSSIBLE_DICT.keys():
+        if WHITE_POSSIBLE_DICT.get(target) > WHITE_POSSIBLE_DICT.get(max_target):
+            max_target = target
+
+    white_timer.target = max_target
+    white_timer.set(1)
+    white_timer.start()
+    print('좌표 : {0}, 바뀌는 흑색돌 : {1}'.format(max_target, WHITE_POSSIBLE_DICT.get(max_target)))
+
+white_timer = Timer(1)
+white_timer.target = None
+def white_timer_onTimeout(timer):
+    global Stones
+    s = Stones[timer.target[0]][timer.target[1]]
+    s.onMouseAction(40 + 80 * timer.target[1], 40 + 80 * timer.target[0], MouseAction.CLICK)
+
+
+white_timer.onTimeout = lambda timer=white_timer : white_timer_onTimeout(timer)
 
 black_num1 = Object('Images/L0.png')
 black_num1.locate(scene, 750, 220)
